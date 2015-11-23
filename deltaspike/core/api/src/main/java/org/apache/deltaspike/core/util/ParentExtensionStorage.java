@@ -19,6 +19,8 @@
 package org.apache.deltaspike.core.util;
 
 import javax.enterprise.inject.spi.Extension;
+
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -26,7 +28,7 @@ import java.util.Set;
 /**
  * Support for Containers with 'hierarchic BeanManagers'
  */
-public class ParentExtensionStorage
+public final class ParentExtensionStorage
 {
 
     private static Set<ExtensionStorageInfo> extensionStorage = new HashSet<ExtensionStorageInfo>();
@@ -57,12 +59,13 @@ public class ParentExtensionStorage
         while (extIt.hasNext())
         {
             ExtensionStorageInfo extensionInfo = extIt.next();
-            if (extension.getClass().equals(extensionInfo.getExtension().getClass()))
+            ClassLoader extCl = extensionInfo.getClassLoader();
+            if (extCl == null || // weak reference case
+                extension.getClass().equals(extensionInfo.getExtension().getClass()))
             {
-                ClassLoader extCl = extensionInfo.getClassLoader();
                 do
                 {
-                    if (extCl.equals(classLoader))
+                    if (extCl == null || extCl.equals(classLoader))
                     {
                         extIt.remove();
                         continue;
@@ -84,7 +87,8 @@ public class ParentExtensionStorage
         while (extIt.hasNext())
         {
             ExtensionStorageInfo extensionInfo = extIt.next();
-            if (extension.getClass().equals(extensionInfo.getExtension().getClass()) &&
+            if (extensionInfo.getClassLoader() != null && // weak reference case
+                extension.getClass().equals(extensionInfo.getExtension().getClass()) &&
                 extensionInfo.getClassLoader().equals(parentClassLoader))
             {
                 return (T) extensionInfo.getExtension();
@@ -94,25 +98,29 @@ public class ParentExtensionStorage
     }
 
 
-    public static class ExtensionStorageInfo
+    /**
+     * Information about an Extension instance and in which classloader it got used
+     */
+    private static class ExtensionStorageInfo
     {
-        private final ClassLoader classLoader;
-        private final Extension extension;
+        // we use WeakReferences to allow perfect unloading of any webapp ClassLoader
+        private final WeakReference<ClassLoader> classLoader;
+        private final WeakReference<Extension> extension;
 
         public ExtensionStorageInfo(ClassLoader classLoader, Extension extension)
         {
-            this.classLoader = classLoader;
-            this.extension = extension;
+            this.classLoader = new WeakReference<ClassLoader>(classLoader);
+            this.extension = new WeakReference<Extension>(extension);
         }
 
-        public ClassLoader getClassLoader()
+        ClassLoader getClassLoader()
         {
-            return classLoader;
+            return classLoader.get();
         }
 
-        public Extension getExtension()
+        Extension getExtension()
         {
-            return extension;
+            return extension.get();
         }
     }
 }
