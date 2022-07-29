@@ -22,6 +22,7 @@ import org.apache.deltaspike.core.spi.config.ConfigFilter;
 import org.apache.deltaspike.core.spi.config.ConfigSource;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Configuration for an application/ClassLoader.
@@ -84,6 +85,17 @@ public interface Config
      */
     ConfigSnapshot snapshotFor(ConfigResolver.TypedResolver<?>... typedResolvers);
 
+    /**
+     * Returns a Map of all properties from all scannable config sources. The values of the properties reflect the raw
+     * values that would be obtained by a call to {@link ConfigSource#getProperties()}
+     * , that is, the value of the
+     * Property from the ConfigSource with the highest ordinal.
+     * No variable replacement or further evaluation is being performed on those values.
+     *
+     * @see ConfigSource#isScannable()
+     */
+    Map<String, String> getAllProperties();
+    
     /**
      * @return all the current ConfigSources for this Config
      */

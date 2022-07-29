@@ -20,8 +20,6 @@ package org.apache.deltaspike.core.api.config;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -306,7 +304,7 @@ public final class ConfigResolver
     }
 
     /**
-     * Resolve all values for the given key.
+     * Resolve the values from all ConfigSources for the given key.
      *
      * @param key
      *
@@ -317,7 +315,7 @@ public final class ConfigResolver
     public static List<String> getAllPropertyValues(String key)
     {
         ConfigSource[] configSources = getConfigProvider().getConfig().getConfigSources();
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (int i = configSources.length; i > 0; i--)
         {
             String value = configSources[i - 1].getPropertyValue(key);
@@ -345,20 +343,7 @@ public final class ConfigResolver
      */
     public static Map<String, String> getAllProperties()
     {
-        ConfigSource[] configSources = getConfigProvider().getConfig().getConfigSources();
-        Map<String, String> result = new HashMap<String, String>();
-
-        for (int i = configSources.length; i > 0; i--)
-        {
-            ConfigSource configSource = configSources[i - 1];
-
-            if (configSource.isScannable())
-            {
-                result.putAll(configSource.getProperties());
-            }
-        }
-
-        return Collections.unmodifiableMap(result);
+        return getConfigProvider().getConfig().getAllProperties();
     }
 
     public static ConfigSource[] getConfigSources()

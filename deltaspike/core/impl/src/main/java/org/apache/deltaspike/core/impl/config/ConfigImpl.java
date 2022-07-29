@@ -170,6 +170,27 @@ public class ConfigImpl implements Config
     }
 
     @Override
+    public Map<String, String> getAllProperties()
+    {
+        // copy over to avoid subsequent modification
+        ConfigSource[] configSources = this.configSources;
+
+        Map<String, String> result = new HashMap<String, String>(300);
+
+        for (int i = configSources.length; i > 0; i--)
+        {
+            ConfigSource configSource = configSources[i - 1];
+
+            if (configSource.isScannable())
+            {
+                result.putAll(configSource.getProperties());
+            }
+        }
+
+        return Collections.unmodifiableMap(result);
+    }
+
+    @Override
     public void addConfigSources(List<ConfigSource> configSourcesToAdd)
     {
         if (configSourcesToAdd == null || configSourcesToAdd.isEmpty())
