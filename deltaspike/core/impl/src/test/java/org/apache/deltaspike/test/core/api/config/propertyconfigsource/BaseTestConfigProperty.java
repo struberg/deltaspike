@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
 import java.util.Collections;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -57,7 +58,7 @@ public class BaseTestConfigProperty
     @Test
     public void testDynamicReload() throws Exception
     {
-        File prop = File.createTempFile("deltaspike-test", ".properties");
+        File prop = Files.createTempFile("deltaspike-test", ".properties").toFile();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(prop)))
         {
             bw.write(CONFIG_VALUE + "=1\ndeltaspike_reload=1\n");
