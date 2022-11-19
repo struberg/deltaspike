@@ -21,6 +21,7 @@ package org.apache.deltaspike.test.core.api.config.propertyconfigsource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.config.PropertyFileConfig;
@@ -77,7 +78,7 @@ public class FileConfigSourceTest
         {
             try
             {
-                File tempFile = File.createTempFile("deltaspike", ".properties");
+                File tempFile = Files.createTempFile("deltaspike", ".properties").toFile();
                 FileWriter fw = new FileWriter(tempFile);
                 fw.write("deltaspike.test.config.from.file=it works");
                 fw.close();
